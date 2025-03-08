@@ -1,9 +1,8 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setActiveSong } from '../redux/services/ytmusicSlice';
 
-const SongCard = ({ song, index, data }) => {
+const SongCard = ({ song, index }) => {
   const dispatch = useDispatch();
   const { activeSong, isPlaying } = useSelector((state) => state.ytmusic);
 
@@ -19,13 +18,12 @@ const SongCard = ({ song, index, data }) => {
           alt={song?.name}
           className="w-full h-full object-cover rounded-lg"
         />
-        {/* Overlay for potential hover play button, etc. */}
         <div className="absolute inset-0 bg-black bg-opacity-50 hidden group-hover:flex items-center justify-center rounded-lg">
           <button
             onClick={handlePlayClick}
             className="text-white text-lg bg-indigo-600 px-4 py-2 rounded-full"
           >
-            {isPlaying && activeSong?.videoId === song.videoId ? 'Pause' : 'Play'}
+            {(isPlaying && activeSong?.videoId === song.videoId) ? 'Pause' : 'Play'}
           </button>
         </div>
       </div>

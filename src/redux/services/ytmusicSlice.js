@@ -1,11 +1,12 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// initialState is defined as:
+// Our combined initial state for songs + player
 const initialState = {
-  songs: [],          // Array of songs fetched from the API
-  status: 'idle',     // API status: idle | loading | succeeded | failed
-  error: null,        // Error message if any
+  // Songs from the API
+  songs: [],
+  status: 'idle',   // idle | loading | succeeded | failed
+  error: null,
 
   // Player state
   isPlaying: false,
@@ -14,25 +15,26 @@ const initialState = {
   songUrl: null,
 };
 
+// Thunk to fetch songs from your backend
 export const fetchSongs = createAsyncThunk('ytmusic/fetchSongs', async (query) => {
   try {
     const response = await axios.get(`http://localhost:5000/api/search?q=${query}`);
-    console.log("🔵 Full API Response:", response.data);
+    console.log('🔵 Full API Response:', response.data);
 
     if (!Array.isArray(response.data)) {
-      console.error("❌ The API response is not an array:", response.data);
+      console.error('❌ The API response is not an array:', response.data);
       return [];
     }
 
-    // Filter only VIDEO items with a valid videoId:
+    // Filter only VIDEO items that have a valid videoId
     const filteredSongs = response.data.filter(
-      (item) => item.type === "VIDEO" && item.videoId
+      (item) => item.type === 'VIDEO' && item.videoId
     );
 
-    console.log("✅ Filtered Songs:", filteredSongs);
+    console.log('✅ Filtered Songs:', filteredSongs);
     return filteredSongs;
   } catch (error) {
-    console.error("❌ API Error:", error.response ? error.response.data : error.message);
+    console.error('❌ API Error:', error.response ? error.response.data : error.message);
     throw error;
   }
 });
@@ -46,6 +48,9 @@ const ytmusicSlice = createSlice({
       state.activeSong = song;
       state.songUrl = `https://www.youtube.com/watch?v=${song.videoId}`;
       state.isPlaying = true;
+      // Also set currentIndex to match this song if it's in our songs array
+      const idx = state.songs.findIndex((s) => s.videoId === song.videoId);
+      if (idx !== -1) state.currentIndex = idx;
     },
     playPause: (state, action) => {
       state.isPlaying = action.payload;
@@ -53,15 +58,19 @@ const ytmusicSlice = createSlice({
     nextSong: (state) => {
       if (state.currentIndex < state.songs.length - 1) {
         state.currentIndex += 1;
-        state.activeSong = state.songs[state.currentIndex];
-        state.songUrl = `https://www.youtube.com/watch?v=${state.activeSong.videoId}`;
+        const next = state.songs[state.currentIndex];
+        state.activeSong = next;
+        state.songUrl = `https://www.youtube.com/watch?v=${next.videoId}`;
+        state.isPlaying = true;
       }
     },
     prevSong: (state) => {
       if (state.currentIndex > 0) {
         state.currentIndex -= 1;
-        state.activeSong = state.songs[state.currentIndex];
-        state.songUrl = `https://www.youtube.com/watch?v=${state.activeSong.videoId}`;
+        const prev = state.songs[state.currentIndex];
+        state.activeSong = prev;
+        state.songUrl = `https://www.youtube.com/watch?v=${prev.videoId}`;
+        state.isPlaying = true;
       }
     },
   },

@@ -32,7 +32,7 @@ const SongBar = ({ song, index, data }) => {
         onClick={handlePlayClick}
         className="text-white bg-indigo-600 px-3 py-1 rounded-full"
       >
-        {isPlaying && activeSong?.videoId === song.videoId ? 'Pause' : 'Play'}
+        {(isPlaying && activeSong?.videoId === song.videoId) ? 'Pause' : 'Play'}
       </button>
     </div>
   );

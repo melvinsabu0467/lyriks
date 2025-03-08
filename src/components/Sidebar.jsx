@@ -22,8 +22,7 @@ const Sidebar = () => {
             <NavLink
               key={item.id}
               to={item.to}
-              className="flex flex-row justify-start items-center my-8 text-sm font-medium text-gray-400 hover:text-cyan-400"
-              activeClassName="text-cyan-400"
+              className="flex flex-row items-center my-8 text-sm font-medium text-gray-400 hover:text-cyan-400"
             >
               {item.name}
             </NavLink>
@@ -31,7 +30,7 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* Mobile Sidebar */}
+      {/* Mobile Menu Button */}
       <div className="absolute md:hidden block top-6 right-3">
         {!mobileMenuOpen ? (
           <button
@@ -48,8 +47,10 @@ const Sidebar = () => {
         )}
       </div>
 
+      {/* Mobile Sidebar */}
       <div
-        className={`absolute top-0 h-screen w-2/3 bg-gradient-to-tl from-white/10 to-[#483d8b] backdrop-blur-lg z-10 p-6 md:hidden smooth-transition ${
+        className={`absolute top-0 h-screen w-2/3 bg-gradient-to-tl from-white/10 to-[#483d8b] 
+        backdrop-blur-lg z-10 p-6 md:hidden smooth-transition ${
           mobileMenuOpen ? 'left-0' : '-left-full'
         }`}
       >
@@ -59,9 +60,8 @@ const Sidebar = () => {
             <NavLink
               key={item.id}
               to={item.to}
-              className="flex flex-row justify-start items-center my-8 text-sm font-medium text-gray-400 hover:text-cyan-400"
+              className="flex flex-row items-center my-8 text-sm font-medium text-gray-400 hover:text-cyan-400"
               onClick={() => setMobileMenuOpen(false)}
-              activeClassName="text-cyan-400"
             >
               {item.name}
             </NavLink>

@@ -9,22 +9,24 @@ const MusicPlayer = () => {
   const { songUrl, isPlaying, currentIndex, songs, activeSong } = useSelector(
     (state) => state.ytmusic
   );
-  
+
   const playerRef = useRef(null);
   const [playedSeconds, setPlayedSeconds] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  // Update current playback time
+  if (!songUrl) {
+    return <div className="text-white p-4">No song playing</div>;
+  }
+
   const handleProgress = (state) => {
     setPlayedSeconds(state.playedSeconds);
   };
 
-  // Set the duration when loaded
   const handleDuration = (dur) => {
     setDuration(dur);
   };
 
-  // Seek when slider is moved
+  // Seek on slider change
   const handleSeek = (e) => {
     const newTime = parseFloat(e.target.value);
     setPlayedSeconds(newTime);
@@ -36,20 +38,22 @@ const MusicPlayer = () => {
     dispatch(playPause(!isPlaying));
   };
 
-  // Format seconds into mm:ss
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  // Format seconds to mm:ss
+  const formatTime = (secs) => {
+    const minutes = Math.floor(secs / 60) || 0;
+    const seconds = Math.floor(secs % 60) || 0;
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
-  if (!songUrl) {
-    return <div className="text-white p-4">No song playing</div>;
-  }
+  const handleEnded = () => {
+    if (currentIndex < songs.length - 1) {
+      dispatch(nextSong());
+    }
+  };
 
   return (
-    <div className="w-full fixed bottom-0 left-0 right-0 bg-gradient-to-br from-gray-800 to-black p-4 z-50">
-      {/* Hidden ReactPlayer for audio playback */}
+    <div className="w-full flex flex-col justify-center items-center px-4 py-2">
+      {/* Hidden ReactPlayer for audio only */}
       <ReactPlayer
         ref={playerRef}
         url={songUrl}
@@ -59,40 +63,50 @@ const MusicPlayer = () => {
         height="0"
         onProgress={handleProgress}
         onDuration={handleDuration}
-        onEnded={() => dispatch(nextSong())}
+        onEnded={handleEnded}
       />
 
-      {/* Top section with song info and control buttons */}
-      <div className="flex items-center justify-between">
-        {/* Song Information */}
-        <div className="flex flex-col">
-          <h3 className="text-white font-bold text-lg">
+      {/* Player Controls */}
+      <div className="flex items-center justify-between w-full max-w-2xl">
+        {/* Song info */}
+        <div className="flex flex-col mr-4">
+          <h3 className="text-white font-bold text-md truncate max-w-[200px]">
             {activeSong?.name || 'Unknown Title'}
           </h3>
           <p className="text-gray-300 text-sm">
             {activeSong?.artist?.name || 'Unknown Artist'}
           </p>
         </div>
-        {/* Control Buttons */}
-        <div className="flex items-center space-x-4">
-          <button onClick={() => dispatch(prevSong())} className="text-white hover:text-gray-300">
+
+        {/* Buttons */}
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={() => dispatch(prevSong())}
+            className="text-white hover:text-gray-300"
+          >
             <FaStepBackward size={20} />
           </button>
-          <button onClick={handlePlayPause} className="text-white hover:text-gray-300">
+          <button
+            onClick={handlePlayPause}
+            className="text-white hover:text-gray-300"
+          >
             {isPlaying ? <FaPause size={20} /> : <FaPlay size={20} />}
           </button>
-          <button onClick={() => dispatch(nextSong())} className="text-white hover:text-gray-300">
+          <button
+            onClick={() => dispatch(nextSong())}
+            className="text-white hover:text-gray-300"
+          >
             <FaStepForward size={20} />
           </button>
         </div>
       </div>
 
       {/* Progress Bar */}
-      <div className="mt-2">
+      <div className="flex flex-col w-full max-w-2xl mt-2">
         <input
           type="range"
           min="0"
-          max={duration}
+          max={duration.toFixed(2)}
           step="0.1"
           value={playedSeconds}
           onChange={handleSeek}
