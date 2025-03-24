@@ -1,6 +1,10 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { RiCloseLine } from 'react-icons/ri';
+import { useDispatch } from 'react-redux';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase/firebaseConfig';
+import { logout } from '../redux/features/authSlice';
 
 const links = [
   { name: 'Discover', to: '/', id: 1 },
@@ -11,6 +15,16 @@ const links = [
 
 const Sidebar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const dispatch = useDispatch();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      dispatch(logout());
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
 
   return (
     <>
@@ -27,6 +41,12 @@ const Sidebar = () => {
               {item.name}
             </NavLink>
           ))}
+          <button
+            onClick={handleLogout}
+            className="flex flex-row items-center my-8 text-sm font-medium text-gray-400 hover:text-red-400"
+          >
+            Logout
+          </button>
         </div>
       </div>
 
@@ -66,6 +86,15 @@ const Sidebar = () => {
               {item.name}
             </NavLink>
           ))}
+          <button
+            onClick={() => {
+              setMobileMenuOpen(false);
+              handleLogout();
+            }}
+            className="flex flex-row items-center my-8 text-sm font-medium text-gray-400 hover:text-red-400"
+          >
+            Logout
+          </button>
         </div>
       </div>
     </>
